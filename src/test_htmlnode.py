@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 class TestHTMLNode(unittest.TestCase):
 
@@ -13,8 +13,9 @@ class TestHTMLNode(unittest.TestCase):
         self.node_5 = HTMLNode("a", "This is a linked html node", None, {"href":"https://www.boot.dev"})
         self.node_6 = LeafNode("img", "This is an image leaf node", {"href":"https://www.boot.dev"})
         self.node_7 = HTMLNode("p", "This is an html node", None, None)
-        self.node_8 = HTMLNode("h1", "This is a parent html header node", [self.node_2], None)
+        self.node_8 = HTMLNode("h1", "This is an html header node", [self.node_2], None)
         self.node_9 = HTMLNode("fake", "This is an html node that shouldn't exist", [self.node_8], {"href":"https://www.boot.dev"})
+        self.node_11 = ParentNode("h1", [self.node_8], None)
         self.node_10 = LeafNode("em", "This is a leaf node.", None)
 
     def test_not_eq_different_tag(self):
@@ -45,6 +46,10 @@ class TestHTMLNode(unittest.TestCase):
 
         self.assertEqual(self.node_10.to_html(), "<em>This is a leaf node.</em>")
         self.assertEqual(self.node_6.to_html(), '<img href="https://www.boot.dev">This is an image leaf node</img>')
+
+    def test_eq_parent_node_to_html(self):
+
+        self.assertEqual(self.node_11.to_html(), self.node_11.to_html())
 
 
 if __name__ == "__main__":
