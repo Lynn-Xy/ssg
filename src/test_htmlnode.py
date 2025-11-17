@@ -21,8 +21,12 @@ class TestHTMLNode(unittest.TestCase):
         self.node_10 = LeafNode("b", "This is a leaf node.", None)
         self.node_12 = TextNode("This is **bold** text.", TextType.PLAIN, None)
 
+        self.text_1 = "This is text with an ![image](https://www.boot.dev)"
+        self.text_2 = "This is text with a [link](https://www.boot.dev)"
+
     def test_not_eq_different_tag(self):
-                                                                                                          self.assertNotEqual(self.node_2, self.node_8)
+
+        self.assertNotEqual(self.node_2, self.node_8)
 
     def test_not_eq_invalid_node(self):
 
@@ -62,6 +66,13 @@ class TestHTMLNode(unittest.TestCase):
 
         self.assertEqual(split_text_nodes_delimiter([self.node_12], "**", TextType.BOLD), [ TextNode("This is ", TextType.PLAIN, None), TextNode("bold", TextType.BOLD, None), TextNode(" text.", TextType.PLAIN, None)])
 
+    def test_eq_extract_markdown_images(self):
+
+        self.assertEqual(extract_markdown_images(self.text_1), [("image", "https://www.boot.dev")])
+
+    def test_eq_extract_markdown_links(self):
+
+        self.assertEqual(extract_markdown_links(self.text_2), [("link", "https://www.boot.dev")])
 
 if __name__ == "__main__":
     unittest.main()
