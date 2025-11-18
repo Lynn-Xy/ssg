@@ -19,7 +19,7 @@ class TestHTMLNode(unittest.TestCase):
         self.node_9 = HTMLNode("fake", "This is an html node that shouldn't exist", [self.node_8], {"href":"https://www.boot.dev"})
         self.node_11 = ParentNode("h1", [self.node_8], None)
         self.node_10 = LeafNode("b", "This is a leaf node.", None)
-        self.node_12 = TextNode("This is **bold** text.", TextType.PLAIN, None)
+        self.node_12 = TextNode("This is **bold** text.", TextType.TEXT, None)
 
         self.text_1 = "This is text with an ![image](https://www.boot.dev)"
         self.text_2 = "This is text with a [link](https://www.boot.dev)"
@@ -64,7 +64,7 @@ class TestHTMLNode(unittest.TestCase):
 
     def test_eq_split_text_node_delimiter(self):
 
-        self.assertEqual(split_text_nodes_delimiter([self.node_12], "**", TextType.BOLD), [ TextNode("This is ", TextType.PLAIN, None), TextNode("bold", TextType.BOLD, None), TextNode(" text.", TextType.PLAIN, None)])
+        self.assertEqual(split_text_nodes_delimiter([self.node_12], "**", TextType.BOLD), [ TextNode("This is ", TextType.TEXT, None), TextNode("bold", TextType.BOLD, None), TextNode(" text.", TextType.TEXT, None)])
 
     def test_eq_extract_markdown_images(self):
 

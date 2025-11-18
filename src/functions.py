@@ -20,7 +20,7 @@ def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
 
     for node in old_text_nodes:
 
-        if node.text_type != TextType.PLAIN:
+        if node.text_type != TextType.TEXT:
 
             new_text_nodes.append(node)
 
@@ -36,7 +36,7 @@ def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
 
             if index % 2 == 0:
 
-                new_text_nodes.append(TextNode(chunk, TextType.PLAIN, None))
+                new_text_nodes.append(TextNode(chunk, TextType.TEXT, None))
 
             else:
 
@@ -44,11 +44,100 @@ def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
 
     return new_text_nodes
 
+def split_text_nodes_images(old_nodes):
+
+    new_text_nodes = []
+
+    for node in old_nodes:
+
+        if node.text_type != TextType.TEXT:
+
+            new_text_nodes.append(node)
+
+            continue
+
+        text = node.text
+
+        markdown_sets = extract_markdown_images(text)
+
+        if not markdown_sets:
+
+            new_text_nodes.append(node)
+
+            continue
+
+        working = text
+
+        for alt_text, url in markdown_sets:
+
+            literal = f"![{alt_text}]({url})"
+
+            before, sep, after = working.partition(literal)
+
+            if before:
+
+                new_text_nodes.append(TextNode(before, TextType.TEXT, None))
+
+            new_text_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+
+
+            working = after
+
+        if working:
+
+            new_text_nodes.append(TextNode(working, TextType.TEXT, None))
+
+    return new_text_nodes
+
+def split_text_nodes_links(old_nodes):
+
+    new_nodes = []
+
+    for node in old_nodes:
+
+        if node.text_type != TextType.TEXT:
+
+            new_text_nodes.append(node)
+
+            continue
+
+        text = node.text
+
+        markdown_sets = extract_markdown_images(text)
+
+        if not markdown_sets:
+
+            new_text_nodes.append(node)
+
+            continue
+
+        working = text
+
+        for alt_text, url in markdown_sets:
+
+            literal = f"![{alt_text}]({url})"
+
+            before, sep, after = working.partition(literal)
+
+            if before:
+
+                new_text_nodes.append(TextNode(before, TextType.TEXT, None))
+                                      
+                new_text_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+
+                working = after
+
+            if working:
+
+                new_text_nodes.append(TextNode(working, TextType.TEXT, None))
+
+    return new_text_nodes
+
 def text_node_to_leaf_node(textnode):
 
     match textnode.text_type:
 
-        case TextType.PLAIN:
+        case TextType.TEXT:
 
             return LeafNode(None, textnode.text, None)
 
@@ -89,7 +178,7 @@ def text_node_to_html_node(textnode):
 
     match textnode.text_type:
 
-        case TextType.PLAIN:
+        case TextType.TEXT:
 
             return HTMLNode(None, textnode.text, None, None)
 
@@ -130,7 +219,7 @@ def text_node_to_parent_node(textnode):
 
     match textnode.text_type:
 
-        case TextType.PLAIN:
+        case TextType.TEXT:
 
             return ParentNode(None, textnode.text, None)
 
