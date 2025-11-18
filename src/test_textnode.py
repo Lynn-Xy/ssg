@@ -1,6 +1,8 @@
 import unittest
 
 from textnode import TextNode, TextType
+from htmlnode import HTMLNode
+from functions import *
 
 class TestTextNode(unittest.TestCase):
 
@@ -16,6 +18,9 @@ class TestTextNode(unittest.TestCase):
         self.node_8 = TextNode("This is a text node", TextType.BOLD)
         self.node_9 = TextNode("This is a text node that shouldn't exist", TextType.TEXT, "https://www.boot.dev")
         self.node_10 = TextNode("This is the last text node.", TextType.BOLD)
+        self.node_11 = TextNode("This is a text node with an ![image](https://www.boot.dev", TextType.TEXT, None)
+        self.node_12 = TextNode("This is a text node with a [link](https://www.boot.dev", TextType.TEXT, None)
+        self.text_1 = "This is **some** text __with__ a ```code block``` and a [link](https://www.boot.dev) with an ![image](https://www.boot.dev)."
 
     def test_not_eq_different_type(self):
 
@@ -36,6 +41,19 @@ class TestTextNode(unittest.TestCase):
     def test_eq(self):
 
         self.assertEqual(self.node_1, self.node_7)
+
+    def text_eq_split_text_node_images(self):
+
+        self.assertEqual(split_text_nodes_images(self.node), [TextNode("This is a text node with an ", TextType.Text, None), TextNode("image", TextType.IMAGE, "https://www.boot.dev")])
+
+    def text_eq_split_text_node_images(self):
+
+        self.assertEqual(split_text_nodes_links(self.node), [TextNode("This is a text node with a ", TextType.Text, None), TextNode("link", TextType.LINK, "https://www.boot.dev")])
+
+    def test_eq_text_to_text_nodes(self):
+
+        self.assertEqual(text_to_text_nodes(self.text_1), [TextNode("This is ", TextType.TEXT, None), TextNode("some", TextType.BOLD, None), TextNode(" text ", TextType.TEXT, None), TextNode("with", TextType.ITALIC, None), TextNode(" a ", TextType.TEXT, None), TextNode("code block", TextType.CODE, None), TextNode(" and a ", TextType.TEXT, None), TextNode("link", TextType.LINK, "https://www.boot.dev"), TextNode(" with an ", TextType.TEXT, None), TextNode("image", TextType.IMAGE, "https://www.boot.dev")])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -80,7 +80,6 @@ def split_text_nodes_images(old_nodes):
 
             new_text_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
 
-
             working = after
 
         if working:
@@ -91,7 +90,7 @@ def split_text_nodes_images(old_nodes):
 
 def split_text_nodes_links(old_nodes):
 
-    new_nodes = []
+    new_text_nodes = []
 
     for node in old_nodes:
 
@@ -103,7 +102,7 @@ def split_text_nodes_links(old_nodes):
 
         text = node.text
 
-        markdown_sets = extract_markdown_images(text)
+        markdown_sets = extract_markdown_links(text)
 
         if not markdown_sets:
 
@@ -115,7 +114,7 @@ def split_text_nodes_links(old_nodes):
 
         for alt_text, url in markdown_sets:
 
-            literal = f"![{alt_text}]({url})"
+            literal = f"[{alt_text}]({url})"
 
             before, sep, after = working.partition(literal)
 
@@ -123,13 +122,13 @@ def split_text_nodes_links(old_nodes):
 
                 new_text_nodes.append(TextNode(before, TextType.TEXT, None))
                                       
-                new_text_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+            new_text_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
 
-                working = after
+            working = after
 
-            if working:
+        if working:
 
-                new_text_nodes.append(TextNode(working, TextType.TEXT, None))
+            new_text_nodes.append(TextNode(working, TextType.TEXT, None))
 
     return new_text_nodes
 
@@ -255,4 +254,18 @@ def text_node_to_parent_node(textnode):
 
             raise Exception("Invalid htmlnode text type.")
 
+def text_to_text_nodes(text):
 
+    node = TextNode(text, TextType.TEXT, None)
+
+    nodes = split_text_nodes_delimiter([node], "**", TextType.BOLD)
+
+    nodes = split_text_nodes_delimiter(nodes, "_", TextType.ITALIC)
+
+    nodes = split_text_nodes_delimiter(nodes, "`", TextType.CODE)
+
+    nodes = split_text_nodes_images(nodes)
+
+    nodes = split_text_nodes_links(nodes)
+
+    return nodes
