@@ -1,6 +1,33 @@
 from textnode import TextNode, TextType
 from htmlnode import LeafNode, HTMLNode, ParentNode
+from block import BlockType
 import re
+
+def block_to_block_type(block):
+
+    if re.search(r"^#{1,6}\s", block):
+
+        return BlockType.H
+    
+    elif re.search(r"^```.*```$", block, re.DOTALL):
+
+        return BlockType.C
+
+    elif re.search(r"^>", block, re.M):
+
+        return BlockType.Q
+
+    elif re.search(r"^-\s", block):
+
+        return BlockType.UL
+
+    elif re.search(r"^\d+\.\s", block, re.M):
+
+        return BlockType.OL
+
+    else:
+
+        return BlockType.P
 
 def extract_markdown_images(text):
 
@@ -13,6 +40,22 @@ def extract_markdown_links(text):
     matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 
     return matches
+
+def markdown_text_to_blocks(text):
+
+    new_blocks = []
+
+    blocks = text.split("\n\n")
+
+    for block in blocks:
+
+        if block == "":
+
+            continue
+
+        new_blocks.append(block.strip())
+
+    return new_blocks
 
 def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
 
@@ -33,6 +76,10 @@ def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
             raise Exception("Invalid markdown - missing matching delimiter.")
 
         for index, chunk in enumerate(text_chunks):
+
+            if chunk == "":
+
+                continue
 
             if index % 2 == 0:
 
@@ -122,7 +169,7 @@ def split_text_nodes_links(old_nodes):
 
                 new_text_nodes.append(TextNode(before, TextType.TEXT, None))
                                       
-            new_text_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+            new_text_nodes.append(TextNode(alt_text, TextType.LINK, url))
 
             working = after
 
