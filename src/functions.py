@@ -57,6 +57,46 @@ def markdown_text_to_blocks(text):
 
     return new_blocks
 
+def markdown_to_html_nodes(markdown):
+
+    html_nodes = []
+
+    for block in markdown_text_to_blocks(markdown):
+
+        block_type = block_to_block_type(block)
+
+        match block_type:
+
+            case BlockType.P:
+
+                continue
+
+            case BlockType.H:
+
+                continue
+
+            case BlockType.C:
+
+                continue
+
+            case BlockType.Q:
+
+                continue
+
+            case BlockType.UL:
+
+                continue
+
+            case BlockType.OL:
+
+                continue
+
+            case _:
+
+                raise Exception("Invalid BlockType.")
+
+    return ParentNode("div", html_nodes, None)
+
 def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
 
     new_text_nodes = []
