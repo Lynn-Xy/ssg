@@ -88,7 +88,7 @@ This is a paragraph block.
 
         blocks = markdown_text_to_blocks(self.text_3)
 
-        self.assertEqual(block_to_block_type(blocks[0]), BlockType.H)
+        self.assertEqual(block_to_block_type(blocks[0]), BlockType.HEADING)
 
 
 if __name__ == "__main__":

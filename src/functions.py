@@ -7,27 +7,27 @@ def block_to_block_type(block):
 
     if re.search(r"^#{1,6}\s", block):
 
-        return BlockType.H
+        return BlockType.HEADING
     
     elif re.search(r"^```.*```$", block, re.DOTALL):
 
-        return BlockType.C
+        return BlockType.CODE
 
     elif re.search(r"^>", block, re.M):
 
-        return BlockType.Q
+        return BlockType.QUOTE
 
     elif re.search(r"^-\s", block):
 
-        return BlockType.UL
+        return BlockType.UNORDERED_LIST
 
     elif re.search(r"^\d+\.\s", block, re.M):
 
-        return BlockType.OL
+        return BlockType.ORDERED_LIST
 
     else:
 
-        return BlockType.P
+        return BlockType.PARAGRAPH
 
 def extract_markdown_images(text):
 
@@ -57,7 +57,7 @@ def markdown_text_to_blocks(text):
 
     return new_blocks
 
-def markdown_to_html_nodes(markdown):
+def markdown_to_html_node(markdown):
 
     html_nodes = []
 
@@ -67,29 +67,118 @@ def markdown_to_html_nodes(markdown):
 
         match block_type:
 
-            case BlockType.P:
+            case BlockType.CODE:
 
-                continue
+                lines = block.split("\n")
 
-            case BlockType.H:
+                block = "\n".join(lines[1:-1])
 
-                continue
+                node = text_node_to_html_node(TextNode(block, TextType.CODE, None))
 
-            case BlockType.C:
+                html_nodes.append(ParentNode("pre", [node], None))
 
-                continue
+            case BlockType.HEADING:
 
-            case BlockType.Q:
+               matched = re.match(r"^#+\s", block)
 
-                continue
+               if matched:
 
-            case BlockType.UL:
+                   matched_text = matched.group(0)
 
-                continue
+                   heading_level = matched_text.count("#")
 
-            case BlockType.OL:
+                   heading_text = block[len(matched_text):]
 
-                continue
+                   sub_nodes = []
+
+                   for node in text_to_text_nodes(heading_text):
+
+                       sub_nodes.append(text_node_to_html_node(node))
+
+                    html_nodes.append(ParentNode(f"h{heading_level}", sub_nodes, None))
+
+            case BlockType.QUOTE:
+
+                lines = block.split("\n")
+
+                cleaned_block = ""
+
+                for line in lines:
+
+                    cleaned_line = line.lstrip(">").lstrip()
+
+                    cleaned_block += cleaned_line + "\n"
+
+                cleaned_block = cleaned_block.rstrip("\n")
+
+                sub_nodes = []
+
+                for node in text_to_text_nodes(cleaned_block):
+
+                    sub_nodes.append(text_node_to_html_node(node))
+
+                html_nodes.append(ParentNode("blockquote", sub_nodes, None))
+
+            case BlockType.ORDERED_LIST:
+
+                sub_nodes = []
+
+                for line in block.split("\n"):
+
+                    match = re.match(r"^\d+\.\s", line)
+
+                    if match:
+
+                        matched_text = match.group(0)
+
+                        line_text = line[len(matched_text):]
+
+                        children = []
+
+                        for node in text_to_text_nodes(line_text):
+
+                            child_node = text_node_to_html_node(node)
+                            children.append(child_node)
+
+                        sub_nodes.append(HTMLNode("li", None, children, None))
+
+                html_nodes.append(ParentNode("ol", sub_nodes, None))
+
+            case BlockType.UNORDERED_LIST:
+
+                sub_nodes = []
+
+                for line in block.split("\n"):
+
+                    match = re.match(r"^-\s", line)
+
+                    if match:
+
+                        matched_text = match.group(0)
+
+                        line_text = line[len(matched_text):]
+
+                        children = []
+
+                        for node in text_to_text_nodes(line_text):
+
+                            child_node = text_node_to_html_node(node)
+
+                            children.append(child_node)
+
+                        sub_nodes.append(HTMLNode("li", None, children, None))
+
+                html_nodes.append(ParentNode("ul", sub_nodes, None))
+
+            case BlockType.PARAGRAPH:
+
+                sub_nodes = []
+
+                for node in text_to_text_nodes(block):
+
+                    sub_nodes.append(text_node_to_html_node(node))
+
+                html_nodes.append(ParentNode("p", sub_nodes, None))
 
             case _:
 
