@@ -2,6 +2,8 @@ from textnode import TextNode, TextType
 from htmlnode import LeafNode, HTMLNode, ParentNode
 from block import BlockType
 import re
+import os
+import shutil
 
 def block_to_block_type(block):
 
@@ -29,6 +31,43 @@ def block_to_block_type(block):
 
         return BlockType.PARAGRAPH
 
+def copy_src_to_dest(src_dir, dest_dir):
+
+    for name in os.listdir(src_dir):
+
+        src_path = os.path.join(src_dir, name)
+
+        if os.path.isfile(src_path):
+                                                                                         copied_path = shutil.copy(src_path, dest_dir)
+                                                                                         print(copied_path)
+
+        elif os.path.isdir(src_path):
+
+            os.mkdir(os.path.join(dest_dir, name))
+
+            src_sub_dir = os.path.join(src_dir, name)
+
+            dest_sub_dir = os.path.join(dest_dir, name)
+
+            copy_src_to_dest(src_sub_dir, dest_sub_dir)
+
+        else:
+                                                                                         raise OSError("Invalid item in directory path.")
+
+def extract_markdowm_title(markdown):
+
+    blocks = markdown_text_to_blocks(markdown)
+
+    for block in blocks:
+
+        if (block_to_block_type(block) == BlockType.HEADING) and (block.count("#") == 1):
+
+            return block.lstrip("#".strip())
+
+        else:
+
+            raise Exception("No heading found in parsed markdown.")
+
 def extract_markdown_images(text):
 
     matches = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
@@ -40,6 +79,50 @@ def extract_markdown_links(text):
     matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 
     return matches
+
+def generate_page(src_path, template_path, dest_path):
+
+    print(f"Generating page from {src_path} to {dest_path} using {template_path}.")
+
+    if os.path.isfile(src_path):
+
+        with open(src_path, "r") as src_object:
+
+            src_content = src_object.read()
+
+            src_file_name = os.path.basename(src_path)
+
+            with open(template_path, "r") as template_object:
+
+                template_content = template_object.read()
+
+                parent_html_node = markdown_to_html_node(src_content)
+
+                src_html = parent_html_node.to_html()
+
+                src_title = extract_markdown_title(src_content)
+
+                src_html = template_content.replace("{{Title}}", src_title)
+
+                src_html = src_html.replace("{{Content}}", src_html)
+
+                if os.path.exists(dest_path):
+
+                     dest_html_path = os.path.join(dest_path, f"{src_file_name}")
+
+                     with open(dest_html_path, "w") as dest_html_object:
+
+                        dest_html_object.write(src_html)
+
+                        print(f"src_html written to {dest_html_path}.")
+
+                else:
+
+                     raise Exception(f"{dest_path} does not exist.")
+
+    else:
+
+        raise Exception("src_path is not a file.")
 
 def markdown_text_to_blocks(text):
 
@@ -185,6 +268,16 @@ def markdown_to_html_node(markdown):
                 raise Exception("Invalid BlockType.")
 
     return ParentNode("div", html_nodes, None)
+
+def rewrite_dest_dir(src_dir="static/", dest_dir="public/")
+
+    if os.path.exists(dest_dir):
+
+        shutil.rmtree(dest_dir)
+
+    os.mkdir(dest_dir)
+
+    copy_src_to_dest(src_dir, dest_dir)
 
 def split_text_nodes_delimiter(old_text_nodes, delimiter, text_type):
 
