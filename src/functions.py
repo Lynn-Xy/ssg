@@ -80,49 +80,60 @@ def extract_markdown_links(text):
 
     return matches
 
-def generate_page(src_path, template_path, dest_path):
+def generate_pages(src_path="static/", template_path="src/template.html", dest_path="public/"):
 
-    print(f"Generating page from {src_path} to {dest_path} using {template_path}.")
+    if os.path.exists(src_path) and os.path.exists(dest_path):
 
-    if os.path.isfile(src_path):
+        print(f"Generating pages from {src_path} to {dest_path}.")
 
-        with open(src_path, "r") as src_object:
+        for name in os.path.listdir(src_path):
 
-            src_content = src_object.read()
+            if os.path.isfile(name):
 
-            src_file_name = os.path.basename(src_path)
+                with open(name, "r") as src_object:
 
-            with open(template_path, "r") as template_object:
+                    src_content = src_object.read()
 
-                template_content = template_object.read()
+                    src_file_name = os.path.basename(src_path)
 
-                parent_html_node = markdown_to_html_node(src_content)
+                        with open(template_path, "r") as template_object:
 
-                src_html = parent_html_node.to_html()
+                            template_content = template_object.read()
 
-                src_title = extract_markdown_title(src_content)
+                            parent_html_node = markdown_to_html_node(src_content)
 
-                src_html = template_content.replace("{{Title}}", src_title)
+                            src_html = parent_html_node.to_html()
 
-                src_html = src_html.replace("{{Content}}", src_html)
+                            src_title = extract_markdown_title(src_content)
 
-                if os.path.exists(dest_path):
+                            src_html = template_content.replace("{{Title}}", src_title)
 
-                     dest_html_path = os.path.join(dest_path, f"{src_file_name}")
+                            src_html = src_html.replace("{{Content}}", src_html)
 
-                     with open(dest_html_path, "w") as dest_html_object:
+                            dest_html_path = os.path.join(dest_path, f"{src_file_name}")
 
-                        dest_html_object.write(src_html)
+                            with open(dest_html_path, "w") as dest_html_object:
 
-                        print(f"src_html written to {dest_html_path}.")
+                                dest_html_object.write(src_html)
 
-                else:
+                                print(f"src_html written to {dest_html_path}")
 
-                     raise Exception(f"{dest_path} does not exist.")
+                elif os.path.isdir(name):
+
+                    sub_src_path = os.path.join(src_path, name)
+
+                    sub_dest_path = os.path.join(dest_path, name)
+
+                    generate_pages(src_path=sub_src_path, template_path=templat_path, dest_path=sub_dest_path)
+
+                else: 
+
+                    raise Exception("invalid item in directory.")
 
     else:
 
-        raise Exception("src_path is not a file.")
+        raise Exception("directories not copied correctly.")
+
 
 def markdown_text_to_blocks(text):
 

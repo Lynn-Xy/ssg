@@ -1,12 +1,12 @@
 import shutil
 import os
-from functions import rewrite_dest_dir
+from functions import rewrite_dest_dir, generate_pages
 
 def main():
 
     rewrite_dest_dir()
 
-    generate_page(src_path="static/content/index.md", template_path="src/template.html", dest_path="public/content/")
+    generate_pages()
 
 
 if __name__ == "__main__":
