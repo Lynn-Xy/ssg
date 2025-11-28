@@ -38,8 +38,10 @@ def copy_src_to_dest(src_dir, dest_dir):
         src_path = os.path.join(src_dir, name)
 
         if os.path.isfile(src_path):
-                                                                                         copied_path = shutil.copy(src_path, dest_dir)
-                                                                                         print(copied_path)
+
+            copied_path = shutil.copy(src_path, dest_dir)
+
+            print(copied_path)
 
         elif os.path.isdir(src_path):
 
@@ -52,9 +54,10 @@ def copy_src_to_dest(src_dir, dest_dir):
             copy_src_to_dest(src_sub_dir, dest_sub_dir)
 
         else:
-                                                                                         raise OSError("Invalid item in directory path.")
 
-def extract_markdowm_title(markdown):
+            raise OSError("Invalid item in directory path.")
+
+def extract_markdown_title(markdown):
 
     blocks = markdown_text_to_blocks(markdown)
 
@@ -80,60 +83,96 @@ def extract_markdown_links(text):
 
     return matches
 
-def generate_pages(src_path="static/", template_path="src/template.html", dest_path="public/"):
+def generate_page(src_path="content/index.md", template_path="src/template.html", dest_path="public/index.html"):
+
+        if os.path.exists(src_path):
+
+            print(f"Generating page from {src_path} to {dest_path}.")
+
+            with open(src_path, "r") as src_object:
+
+                src_content = src_object.read()
+
+                with open(template_path, "r") as template_object:
+
+                    template_content = template_object.read()
+
+                    parent_html_node = markdown_to_html_node(src_content)
+
+                    src_html = parent_html_node.to_html()
+
+                    src_title = extract_markdown_title(src_content)
+
+                    page_html = template_content.replace("{{ Title }}", src_title)
+
+                    page_html = page_html.replace("{{ Content }}", src_html)
+
+                    with open(dest_path, "w") as dest_html_object:
+
+                        dest_html_object.write(page_html)
+
+                        print(f"src_html written to {dest_path}")
+
+def generate_pages(src_path="static/content/", template_path="src/template.html", dest_path="public/content/"):
 
     if os.path.exists(src_path) and os.path.exists(dest_path):
 
         print(f"Generating pages from {src_path} to {dest_path}.")
 
-        for name in os.path.listdir(src_path):
+        for name in os.listdir(src_path):
 
-            if os.path.isfile(name):
+            name_path = os.path.join(src_path, name)
 
-                with open(name, "r") as src_object:
+            if os.path.isfile(name_path):
+
+                with open(name_path, "r") as src_object:
 
                     src_content = src_object.read()
 
-                    src_file_name = os.path.basename(src_path)
+                    src_file_name_full = os.path.basename(name_path)
 
-                        with open(template_path, "r") as template_object:
+                    src_file_name_parts = src_file_name_full.split(".", 1)
 
-                            template_content = template_object.read()
+                    src_file_name = src_file_name_parts[0]
 
-                            parent_html_node = markdown_to_html_node(src_content)
+                    with open(template_path, "r") as template_object:
 
-                            src_html = parent_html_node.to_html()
+                        template_content = template_object.read()
 
-                            src_title = extract_markdown_title(src_content)
+                        parent_html_node = markdown_to_html_node(src_content)
 
-                            src_html = template_content.replace("{{Title}}", src_title)
+                        src_html = parent_html_node.to_html()
 
-                            src_html = src_html.replace("{{Content}}", src_html)
+                        src_title = extract_markdown_title(src_content)
 
-                            dest_html_path = os.path.join(dest_path, f"{src_file_name}")
+                        page_html = template_content.replace("{{ Title }}", src_title)
 
-                            with open(dest_html_path, "w") as dest_html_object:
+                        page_html = page_html.replace("{{ Content }}", src_html)
 
-                                dest_html_object.write(src_html)
+                        dest_html_path = os.path.join(dest_path, f"{src_file_name}.html")
 
-                                print(f"src_html written to {dest_html_path}")
+                        with open(dest_html_path, "w") as dest_html_object:
 
-                elif os.path.isdir(name):
+                            dest_html_object.write(page_html)
 
-                    sub_src_path = os.path.join(src_path, name)
+                            print(f"src_html written to {dest_html_path}")
 
-                    sub_dest_path = os.path.join(dest_path, name)
+            elif os.path.isdir(name_path):
 
-                    generate_pages(src_path=sub_src_path, template_path=templat_path, dest_path=sub_dest_path)
+                sub_src_path = os.path.join(src_path, name)
 
-                else: 
+                sub_dest_path = os.path.join(dest_path, name)
 
-                    raise Exception("invalid item in directory.")
+                generate_pages(src_path=sub_src_path, template_path=template_path, dest_path=sub_dest_path)
+
+            else:
+
+                print(f"{name_path}")
+                raise Exception("invalid item in directory.")
 
     else:
 
         raise Exception("directories not copied correctly.")
-
 
 def markdown_text_to_blocks(text):
 
@@ -184,12 +223,12 @@ def markdown_to_html_node(markdown):
                    heading_text = block[len(matched_text):]
 
                    sub_nodes = []
-
+                   
                    for node in text_to_text_nodes(heading_text):
-
+                       
                        sub_nodes.append(text_node_to_html_node(node))
-
-                    html_nodes.append(ParentNode(f"h{heading_level}", sub_nodes, None))
+                       
+                       html_nodes.append(ParentNode(f"h{heading_level}", sub_nodes, None))
 
             case BlockType.QUOTE:
 
@@ -232,6 +271,7 @@ def markdown_to_html_node(markdown):
                         for node in text_to_text_nodes(line_text):
 
                             child_node = text_node_to_html_node(node)
+
                             children.append(child_node)
 
                         sub_nodes.append(HTMLNode("li", None, children, None))
@@ -280,7 +320,7 @@ def markdown_to_html_node(markdown):
 
     return ParentNode("div", html_nodes, None)
 
-def rewrite_dest_dir(src_dir="static/", dest_dir="public/")
+def rewrite_dest_dir(src_dir="static/", dest_dir="public/"):
 
     if os.path.exists(dest_dir):
 
@@ -452,7 +492,6 @@ def text_node_to_leaf_node(textnode):
 
             raise Exception("Invalid htmlnode text type.")
 
-
 def text_node_to_html_node(textnode):
 
     match textnode.text_type:
@@ -492,7 +531,6 @@ def text_node_to_html_node(textnode):
         case _:
 
             raise Exception("Invalid htmlnode text type.")
-
 
 def text_node_to_parent_node(textnode):
 
