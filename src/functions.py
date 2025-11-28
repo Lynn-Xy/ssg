@@ -83,7 +83,8 @@ def extract_markdown_links(text):
 
     return matches
 
-def generate_page(src_path="content/index.md", template_path="src/template.html", dest_path="public/index.html"):
+'''
+def generate_page(src_path, template_path, dest_path, basepath):
 
         if os.path.exists(src_path):
 
@@ -107,13 +108,18 @@ def generate_page(src_path="content/index.md", template_path="src/template.html"
 
                     page_html = page_html.replace("{{ Content }}", src_html)
 
+                    page_html = page_html.replace('href="/', 'href="' + basepath)
+
+                    page_html = page_html.replace('src="/', 'src="' + basepath)
+
                     with open(dest_path, "w") as dest_html_object:
 
                         dest_html_object.write(page_html)
 
                         print(f"src_html written to {dest_path}")
 
-def generate_pages(src_path="static/content/", template_path="src/template.html", dest_path="public/content/"):
+
+def generate_pages_recursively(src_path="static/content/", template_path="src/template.html", dest_path="public/content/"):
 
     if os.path.exists(src_path) and os.path.exists(dest_path):
 
@@ -173,6 +179,7 @@ def generate_pages(src_path="static/content/", template_path="src/template.html"
     else:
 
         raise Exception("directories not copied correctly.")
+'''
 
 def markdown_text_to_blocks(text):
 
@@ -320,7 +327,7 @@ def markdown_to_html_node(markdown):
 
     return ParentNode("div", html_nodes, None)
 
-def rewrite_dest_dir(src_dir="static/", dest_dir="public/"):
+def rewrite_dest_dir(src_dir="static/", dest_dir="docs/"):
 
     if os.path.exists(dest_dir):
 
