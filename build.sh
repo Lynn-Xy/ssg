@@ -1,1 +1,1 @@
-python3 src/main.py "/github.com/Lynn-Xy/ssg/"
+python3 src/main.py "/ssg/"
