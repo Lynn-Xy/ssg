@@ -9,7 +9,25 @@ class HTMLNode():
 
     def to_html(self):
 
-        return f"<{self.tag}{self.props_to_html}>{self.value}</{self.tag}>"
+        if self.tag is None:
+
+            return self.value
+
+        else:
+            
+            html_string = f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
+            if self.children is not None:
+
+                children_html = ""
+
+                for child in self.children:
+
+                    children_html += child.to_html()
+
+                html_string = f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
+
+            return html_string
 
     def props_to_html(self):
 
