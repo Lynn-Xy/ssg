@@ -4,7 +4,7 @@ import sys
 
 def main():
 
-    if len(sys.argv[1]) > 1:
+    if len(sys.argv) > 1:
 
         basepath = sys.argv[1]
 
@@ -14,7 +14,7 @@ def main():
 
     rewrite_dest_dir()
 
-    generate_pages_recursive()
+    generate_pages_recursive(basepath=basepath)
 
 if __name__ == "__main__":
     main()
