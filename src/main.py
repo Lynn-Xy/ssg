@@ -1,5 +1,4 @@
-from functions import rewrite_dest_dir
-from gencontent import generate_pages_recursive
+from functions import rewrite_dest_dir, generate_pages_recursive
 import sys
 
 def main():

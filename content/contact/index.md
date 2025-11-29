@@ -1,9 +1,7 @@
-# Contact the Author
+# Contact The Administrator
 
 [< Back Home](/)
 
-Give me a call anytime to chat about Tolkien!
+`Admin@RAISA.SCPF`
 
-`555-555-5555`
-
-**"Váya márië."**
+**"Does the Black Moon Howl?"**
